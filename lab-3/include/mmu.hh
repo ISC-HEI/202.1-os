@@ -227,8 +227,13 @@ struct FrameDescriptor {
       raw[c + 2] = entry;
     }
     if (c < 3) {
-      raw[0] = (raw[0] & 3) | ((c + 1) << 2);
+      raw[0] = (raw[0] & 0xc3) | ((c + 1) << 2);
     }
+  }
+
+  /// Removes all back references from this frame.
+  void clear_back_references() {
+    raw[0] = raw[0] & 0xc3;
   }
 
   /// Returns the offsets of the pate table entries mapping to this frame.
@@ -582,14 +587,28 @@ struct Machine {
     }
   }
 
+  /// Returns the offset of the given page entry.
+  ///
+  /// `pte` is a pointer to a page entry that is stored in the machine's main memory.
+  inline std::uint8_t pte_offset(PageEntry const* pte) const {
+    return static_cast<std::uint8_t>(std::distance(this->main_memory, rebind<std::byte>(pte)));
+  }
+
   /// Returns the physical address corresponding to `va` accessed with `permissions`, knowing that
   /// `va` resides in the page described by `pte`.
   ///
   /// This method is called internally after the page entry corresponding to `va` has been found,
   /// as a result of either TLB hit or a page walk. It throws if the protection of the page do not
   /// support `permissions`.
-  PhysicalAddress translate(
-    VirtualAddress va, PageEntry::Protection permissions, PageEntry pte
+  ///
+  /// If the frame storing the page is not in main memory, its contents is retrived from secondary
+  /// memory and `pte` is updated to refer to physical location (in main memory) of the frame where
+  /// the page's contents has been written.
+  ///
+  /// If the method does not throw and `update_tlb` is true, the TLB is updated once the frame
+  /// containing the translated address has been properly configured.
+  PhysicalAddress translate_with_entry(
+    VirtualAddress va, PageEntry::Protection permissions, PageEntry& pte, bool update_tlb
   ) {
     // Does the page have the right protection?
     if ((pte.protection() & permissions) != permissions) {
@@ -601,6 +620,7 @@ struct Machine {
     // Is the page in main memory?
     if (pte.is_present()) {
       frame_index = pte.frame();
+      if (update_tlb) { tlb.insert(va.page(), pte); }
     }
 
     // Otherwise, the frame number contains the location where the page has been swapped out.
@@ -608,7 +628,12 @@ struct Machine {
       frame_index = swap_victim(this, pte.frame());
       pte.set_frame(frame_index);
       pte.set_present(true);
-      tlb.insert(va, pte);
+      if (update_tlb) { tlb.insert(va.page(), pte); }
+
+      // Update the frame so that it points back to the page table entry that has been modified.
+      // We can assume `pte` refers directly to some location in the page translation table since
+      // the referred frame would have been present in memory otherwise.
+      this->frame_table()[frame_index].add_back_reference(pte_offset(&pte));
     }
 
     this->frame_table()[frame_index].set_referenced(true);
@@ -659,7 +684,8 @@ struct Machine {
     // Check the TLB.
     auto pte = tlb.lookup(va.page());
     if (!pte.is_none()) {
-      return translate(va, permissions, pte);
+      assert(pte.is_present());
+      return translate_with_entry(va, permissions, pte, false);
     }
 
     // Walk the page table.
@@ -679,9 +705,7 @@ struct Machine {
         if ((va.raw & ~masks[i]) != 0) { throw PageLookupError(va, SegmentationFault); }
 
         // Decode the page entry.
-        pte = PageEntry::from_raw(*pda);
-        tlb.insert(va.page(), pte);
-        return translate(va, permissions, pte);
+        return translate_with_entry(va, permissions, *rebind<PageEntry>(pda), true);
       }
 
       // If `pda` is less than 4096 it denotes a physical address in main memory.
@@ -700,9 +724,7 @@ struct Machine {
     }
 
     // If we got there, `pda` encodes the raw contents of some page table entry.
-    pte = PageEntry::from_raw(*pda);
-    tlb.insert(va.page(), pte);
-    return translate(va, permissions, pte);
+    return translate_with_entry(va, permissions, *rebind<PageEntry>(pda), true);
   }
 
   /// Returns the physical address corresponding to `va` accessed with `permissions`, throwing
@@ -795,7 +817,7 @@ struct Machine {
     pte->set_present(true);
     pte->set_protection(ps);
     pte->set_frame(free_slot);
-    frame_table[free_slot].add_back_reference(std::distance(m, rebind<std::byte>(pte)) & 0xff);
+    frame_table[free_slot].add_back_reference(self->pte_offset(pte));
   }
 
   /// Selects a page to evict, swaps its contents to secondary memory, and returns the index of the
@@ -878,8 +900,10 @@ struct Machine {
       pte.set_present(false);
       pte.set_frame(secondary_slot);
     }
+
+    frame.clear_back_references();
   }
 
 };
 
-}
+} // namespace mmu
