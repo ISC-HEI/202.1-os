@@ -86,7 +86,7 @@ inline std::ostream& operator<<(std::ostream& o, PhysicalAddress pa) {
 /// The reason that caused a page lookup error.
 enum PageLookupErrorCause : std::uint8_t {
 
-  /// A page table entry has been ressolved but the corresponding frame is not in main memory.
+  /// A page table entry has been resolved but the corresponding frame is not in main memory.
   PageFault = 1,
 
   /// The page is not mapped.
