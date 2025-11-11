@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdint>
 #include <forward_list>
 #include <vector>
 
