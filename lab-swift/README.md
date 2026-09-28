@@ -1466,7 +1466,7 @@ struct Pokemon {
 
 The `Pokemon` struct is declared with two stored properties. One is a constant, the other is a variable.
 
-Computed properties aren’t stored in their struct.
+Computed properties aren't stored in their struct.
 Instead, they are computed every time they are `get` or `set`:
 
 ```swift
@@ -1507,7 +1507,7 @@ A computed property `kmWalkedWithTrainer` computes the number of kilometers it r
 Notice that the setter automatically receives an argument `newValue`.
 This constant contains the new value to be assigned to the property.
 
-If it shouldn’t be (our wouldn’t make sense to) set, it is possible to omit the `get` and `set` keywords to only write the code of the getter:
+If it shouldn't be (our wouldn't make sense to) set, it is possible to omit the `get` and `set` keywords to only write the code of the getter:
 
 ```swift
 struct Pokemon {
@@ -1520,10 +1520,10 @@ struct Pokemon {
 ```
 
 In the above example, a computed property `hasReachedMaxLevel` returns whether the Pokemon reached is maximum level.
-The property is read-only, as it wouldn’t make any sense to set it.
+The property is read-only, as it wouldn't make any sense to set it.
 Indeed, what level value would be appropriate?
 
-While enumerations can’t have stored properties, they can define computed ones:
+While enumerations can't have stored properties, they can define computed ones:
 
 ```swift
 indirect enum SpeciesType {
@@ -1546,10 +1546,10 @@ print(lotadType.isDual)
 
 ### Lazy properties
 
-Lazy (stored) properties are similar to read-only computed properties, but differ in the fact that they’re computed only once, and only if explicitly accessed after initialization.
+Lazy (stored) properties are similar to read-only computed properties, but differ in the fact that they're computed only once, and only if explicitly accessed after initialization.
 Hence, they have two use cases:
 
-- When its value depends on something that can’t be even after initialization.
+- When its value depends on something that can't be even after initialization.
 - When computing its value it is expensive.
 
 The following example illustrates the second use-case, with the assumption that the function `loadPokedexEntry(of:)` actually requires a long and expensive call to an external service.
@@ -1583,17 +1583,17 @@ print(bulby.pokedexEntry)
 
 Notice that another parameter appeared in the memberwise initializer.
 That is because `pokedexEntry` is a property, and like all properties it should be initialized.
-If it hadn’t been initialized with `nil`, the close associated with the lazy property would never have been called.
+If it hadn't been initialized with `nil`, the close associated with the lazy property would never have been called.
 In the above example, it is called only once, when we first access the `pokedexEntry` property.
 
-Note that a lazy property can’t be declared a constant.
+Note that a lazy property can't be declared a constant.
 The reason is that constant properties must always have a value before initialization completes.
 Besides, a lazy property is mutating, meaning that it changes the struct it is defined in.
 Indeed, it is able to modify the value it was initialized with.
 
 ### Static properties
 
-All the properties we’ve seen above have been defined for the instances of a type, meaning that each instance of the type gets its own property values.
+All the properties we've seen above have been defined for the instances of a type, meaning that each instance of the type gets its own property values.
 Swift also allows to define properties on the type itself.
 There will be only one copy of that properties, no matter how many instances get created.
 
@@ -1637,11 +1637,11 @@ print(ash.isFriends(with: brock))
 // Prints "true"
 ```
 
-> It is not mandatory to prepend a type’' own property with `self` inside a method.
+> It is not mandatory to prepend a type'' own property with `self` inside a method.
 > Hence, we could have written only `friends` rather than `self.friends` in the body of `isFriend(with:)`, since `friends` is a property of `Trainer`.
 
 Friendship is *usually* commutative.
-In the above example however, stating that `Brock` is a friend of `Ash` doesn’t make `Ash` a friend of Brock.
+In the above example however, stating that `Brock` is a friend of `Ash` doesn't make `Ash` a friend of Brock.
 We can fix this problem by modifying our method so that it updates the relation.
 However, methods cannot modify `self` by default.
 To tell Swift otherwise, we must declare that the method is `mutating`.
@@ -1736,7 +1736,7 @@ let bulby = Pokemon.createFromSpecies((001, "Bulbasaur"))
 
 ### Subscripts
 
-We’ve already used subscripts with arrays and dictionaries, to get an indexed value:
+We've already used subscripts with arrays and dictionaries, to get an indexed value:
 
 ```swift
 let letters = ["A", "s", "h"]
@@ -1792,9 +1792,9 @@ print(matrix[1, 1])
 ### Initializers
 
 Swifts statically enforces that any variable is initialized before it is used.
-We’ve been mostly using default initializers so far, but it is also possible to define custom initializers for stucts and even enumerations.
+We've been mostly using default initializers so far, but it is also possible to define custom initializers for stucts and even enumerations.
 
-As we’ve seen earlier, structs receive a memberwise initializer if none is explicitly defined:
+As we've seen earlier, structs receive a memberwise initializer if none is explicitly defined:
 
 ```swift
 typealias Species = (number: Int, name: String)
@@ -1819,7 +1819,7 @@ struct Pokemon {
 let sparky = Pokemon()
 ```
 
-> Note that by providing a default value for `Pokemon.species`, we actually disallow any Pokemon to have another species, as the constant won’t never be mutable for any instance of Pokemon.
+> Note that by providing a default value for `Pokemon.species`, we actually disallow any Pokemon to have another species, as the constant won't never be mutable for any instance of Pokemon.
 
 For a finer control on how a struct gets initialized, Swift also allows to define custom initializers.
 They have the same syntax as methods, except that they are defined with the keyword `init` and cannot return anything.
@@ -1836,7 +1836,7 @@ struct Pokemon {
 }
 ```
 
-> Note that as soon as you define a custom initializer, Swift doesn’t provide you with neither default not memberwise initializer anymore.
+> Note that as soon as you define a custom initializer, Swift doesn't provide you with neither default not memberwise initializer anymore.
 
 Initializers can have any parameter and perform any kind of operation.
 The only requirement is that they initialize all properties before they transfer control:
@@ -1855,8 +1855,8 @@ struct Pokemon {
 let sparky = Pokemon(speciesNumber: 135, speciesName: "Jolteon", level: 31)
 ```
 
-As one would guess, self is mutating inside an initializer (as otherwise the initializer wouldn’t be able to initialize its values).
-Nevertheless, a struct initializer can’t read its properties before they are initialized:
+As one would guess, self is mutating inside an initializer (as otherwise the initializer wouldn't be able to initialize its values).
+Nevertheless, a struct initializer can't read its properties before they are initialized:
 
 ```swift
 struct Pokemon {
@@ -1897,7 +1897,7 @@ let sparky = Pokemon(speciesNumber: 135, speciesName: "Jolteon", level: 31)
 > initialize `Pokemon` with `init(species:level:)`, `init(speciesNumber:speciesName:)` and `init(speciesNumber:speciesName:level:)`.
 
 Although less common, enumerations can also define
-initializers. Since enumerations can’t have stored properties, the only job of its inits initializer(s) is to provide a value for `self`:
+initializers. Since enumerations can't have stored properties, the only job of its inits initializer(s) is to provide a value for `self`:
 
 ```swift
 indirect enum SpeciesType {
@@ -1952,7 +1952,7 @@ struct Pokemon {
 ```
 
 In the above example, it is possible to instantiate `Pokemon` with a species number.
-However, there’s no way to ensure that the given species number is known at compile time.
+However, there's no way to ensure that the given species number is known at compile time.
 Hence, the constructor is marked failable, and a guard makes sure the species number is valid before initializing the object.
 
 When instantiating a type with a failable initializer, the returned object is always an optional of that type:
@@ -1964,7 +1964,7 @@ print(type(of: bulby))
 ```
 
 Enumerations can also declare a failable initializer.
-That is particularly useful when there’s no valid case that matches the initializer arguments.
+That is particularly useful when there's no valid case that matches the initializer arguments.
 For instance, our earlier example of initializer for `SpeciesType` could be rewritten without the need of the additional `unknown` case:
 
 ```swift
