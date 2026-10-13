@@ -42,8 +42,8 @@
 ///     │ 0x4c - 0xff ║ unallocated pool    │
 ///     └─────────────╨─────────────────────┘
 ///
-/// Kernel memory can be allocated with `kalloc`, which reserves space from the unallocated by
-/// moving the kernel break. There is currently no way to deallocate kernel memory.
+/// Kernel memory can be allocated with `kalloc`, which reserves space from the unallocated
+/// pool by moving the kernel break. There is currently no way to deallocate kernel memory.
 public struct Machine: ~Copyable {
 
   /// The size of secondary memory, in number of slots.
