@@ -5,10 +5,10 @@
 ///
 /// The system implements demand paging. The virtual address space is represented using the full
 /// range of a 16-bit unsigned integer, mapping onto 12-bit physical address space, segmenting
-/// memory into 256 bytes pages. Address mappings are encoded by a multi-level page translation
+/// memory into 256-byte pages. Address mappings are encoded by a multi-level page translation
 /// table indexed by the 8 most significant bits of a virtual address.
 ///
-/// The page translation table has three levels, denoted by *L0*, *L1*, and *L3*, respectively.
+/// The page translation table has three levels, denoted by *L0*, *L1*, and *L2*, respectively.
 /// Each level is composed of directories that represent nodes or leaves in a tree. Specifically,
 /// *L0* encodes the root node and consists of only one directory with 4 entries, *L1* can contain
 /// up to 4 directories (one per child of the root) of 8 entries, and *L2* can contain up to 32
