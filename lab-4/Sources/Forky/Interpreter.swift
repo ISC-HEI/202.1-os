@@ -226,7 +226,7 @@ struct Interpreter {
 
     case (let r, let s) where r.isValue && s.isEmpty:
       processes[executing] = (r, k)
-      children[executing] &= (1 << child)
+      children[executing] &= ~(1 << child)
       allocated &= ~(1 << child)
       return next()
 
