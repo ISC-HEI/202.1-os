@@ -54,13 +54,6 @@ public struct PetriNet: Sendable {
     (0 ..< placeCount).allSatisfy({ (p) in self[transition: t, place: p].consumed <= m[p] })
   }
 
-  /// Returns `true` iff `s` is fireable from `m`.
-  ///
-  /// - Requires: `m` assigns each place in `self`.
-  public func fireable<S: Sequence<Int>>(_ s: S, from m: Marking) -> Bool {
-    todo()
-  }
-
   /// Returns the marking obtained after firing `t` from `m`.
   ///
   /// - Requires: `m` assigns each place in `self` and `t` is fireable from `m`.
