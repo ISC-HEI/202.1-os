@@ -99,7 +99,7 @@ public struct PetriNet: Sendable {
   /// Returns the set of markings reachable from `m`.
   ///
   /// - Requires: `self` is bounded.
-  public func states() async -> ReachabilityGraph {
+  public func states(from m: Marking) async -> ReachabilityGraph {
     todo()
   }
 
